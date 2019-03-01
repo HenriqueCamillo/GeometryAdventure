@@ -7,7 +7,7 @@ public class Player : MonoBehaviour {
 	private CapsuleCollider2D groundCheck;
 	private bool lookingRight = true;
 	private bool canAttack = true;
-	private bool grounded;
+	public bool grounded;
 	[SerializeField] private GameObject[] projectiles; 
 	[SerializeField] [Range(0f, 10f)] private float speed;
 	[SerializeField] [Range(0f, 10f)] private float jumpForce;
@@ -23,13 +23,13 @@ public class Player : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void FixedUpdate () {
 		// Horizontal movement
 		rb.velocity	= new Vector2(speed * Input.GetAxis("Horizontal"), rb.velocity.y);
 
 		// Ground Check
 		RaycastHit2D hit = Physics2D.Raycast(this.transform.position, Vector2.down, groundCheckDistance, LayerMask.GetMask("Ground"));
-		// Debug.DrawRay(this.transform.position, new Vector2(0f, -groundCheckDistance), Color.green);
+		Debug.DrawRay(this.transform.position, new Vector2(0f, -groundCheckDistance), Color.green);
 		if (hit) {
 			grounded = true;
 		} else {
@@ -37,7 +37,7 @@ public class Player : MonoBehaviour {
 		}
 
 		// Jump
-		if (grounded && (Input.GetAxisRaw("Vertical") == 1)) {
+		if (grounded && ( (Input.GetKeyDown(KeyCode.W)) || Input.GetKeyDown(KeyCode.UpArrow)) ) {
 			rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
 		}
 
@@ -68,7 +68,7 @@ public class Player : MonoBehaviour {
 		canAttack = true;
 	}
 
-	Object InstantiateProjectile(int projectile) {
+	GameObject InstantiateProjectile(int projectile) {
 		StartCoroutine("AttackCooldown");
 
 		float direction = lookingRight ? 1 : -1;
