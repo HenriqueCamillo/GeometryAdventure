@@ -3,32 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class WalkingEnemy : MonoBehaviour {
-    [Header("Game Design Variables")]
-    [Tooltip("Indicates the enemy moving direction")]
-    [SerializeField] protected bool walkingToTheLeft;
-    [Tooltip("Speed in which the enemy moves")]
-    [SerializeField] private float speed;
-    [Tooltip("Distance of the ray that checks if there is a wall in front of the enemy")]
-    [SerializeField] private float rayDistance;
+    private Rigidbody2D rb;
     private SpriteRenderer sRenderer;
+    [Space(5)]
+    [Header("Variáveis de Game Design")]
+    [Tooltip("Indica a direção para qual o inimgo está andando")]
+    [SerializeField] protected bool walkingToTheLeft;
+    [Tooltip("Velocidade do inimigo")]
+    [SerializeField] private float speed;
+    [Tooltip("Dano causado pelo inimigo ao atingir o player")]
+    [SerializeField] float damage;
+    [Tooltip("Distância do raio que checa se há uma parede na frente do inimigo")]
+    [SerializeField] private float rayDistance;
 
     /// <summary>
-    /// Gets sprite renderer component and sets its moving direction
+    /// Pega referencia do SpriteRenderer e define a direção de sua velocidade.
     /// </summary>
     private void Start() {
         sRenderer = GetComponent<SpriteRenderer>();
+        rb = GetComponent<Rigidbody2D>();
 
         speed = walkingToTheLeft ? -speed : speed;
         sRenderer.flipX = walkingToTheLeft;
     }
 
     /// <summary>
-    /// Checks if there is a wall in front of the enemy. If so, changes its moving direction
+    /// Coloca o inimigo em movimento e checa se há uma parede em sua frente, mudando de direção se houver.
     /// </summary>
     protected void Update() {
-        this.transform.position = Vector2.MoveTowards(this.transform.position, new Vector2(100, 0), speed);
+        rb.velocity = new Vector2(speed, rb.velocity.y);
 
         Vector2 direction = walkingToTheLeft ? Vector2.left : Vector2.right;
+
         RaycastHit2D hit = Physics2D.Raycast(this.transform.position, direction, rayDistance, LayerMask.GetMask("Ground"));
         Debug.DrawRay((Vector2)this.transform.position, direction * rayDistance, Color.green, 0.1f);
         
@@ -38,7 +44,7 @@ public class WalkingEnemy : MonoBehaviour {
     }
 
     /// <summary>
-    /// Changes the movement direction of the enemy
+    /// Muda a direção do movimento do inimigo, mudando sua velocida, sprite e flag.
     /// </summary>
     protected void ChangeDirection() {
         speed = -speed;
@@ -47,12 +53,16 @@ public class WalkingEnemy : MonoBehaviour {
     }
 
     /// <summary>
-    /// Changes the movement direction of the enemy if it hits the player
+    /// Caso colida com o jogador, dá dano nele.
+    /// Ao colidir com algum inimigo ou com o jogador, muda de direção.
     /// </summary>
-    /// <param name="other">Object </param>
+    /// <param name="other"> Objeto com que o inimigo colidiu. </param>
     private void OnCollisionEnter2D(Collision2D other) {
-        if (other.gameObject.CompareTag("Player")) {
+        if (other.gameObject.CompareTag("Player") || other.gameObject.CompareTag("Enemy")) {
             ChangeDirection();
+            if (other.gameObject.CompareTag("Player")) {
+                other.gameObject.GetComponent<Life>().TakeDamage(damage);
+            }
         }
     }
 }

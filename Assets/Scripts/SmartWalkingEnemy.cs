@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class SmartWalkingEnemy : WalkingEnemy {
-    [Tooltip("Distance of the ray to check if there is ground")]
+    [Tooltip("Distância do raio que verifica se há chão na frente do inimigo")]
     [SerializeField] private float diagonalRayDistance;
 
     /// <summary>
-    /// Sends a raycast in a 45 degrees aiming to the ground, 
-    /// and if it doesn't see any ground, it changes its movement direction.
+    /// Atira um raio em 45 graus para baixo na direção em que o inimigo está andando,
+    /// e se esse raio não atingir o chão (indicando um buraco), ele muda sua direção.
     /// </summary>
     private new void Update() {
         base.Update();
